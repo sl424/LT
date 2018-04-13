@@ -1,6 +1,6 @@
 import {StackNavigator} from 'react-navigation';
 import React, {Component} from 'react';
-import {ActivityIndicator,SectionList,FlatList,ScrollView, Platform, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, TouchableNativeFeedback, Button, Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import {WebView, ActivityIndicator,SectionList,FlatList,ScrollView, Platform, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, TouchableNativeFeedback, Button, Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native';
 import {styles} from './my-config';
 
 
@@ -22,12 +22,16 @@ import {styles} from './my-config';
 
 var cid = "UCY3M77wNeopjQbL9mpSVvLg";
 var key = "AIzaSyAtD8CQ6nwo0xwGG4Kh1PE44_GCCej87rs";
+var pid = "";
+var url = "";
+var uri = "";
+var vid = "";
 
-class DetailsScreen extends React.Component {
+class VideoScreen extends React.Component {
 	static navigationOptions = ({ navigation, navigationOptions }) => {
 		const { params } = navigation.state;
 		return {
-			title: params ? params.otherParam : 'Languages',
+			title: params ? params.otherParam : 'Video',
 			/* These values are used instead of the shared configuration! */
 			headerStyle: {
 				backgroundColor: navigationOptions.headerTintColor,
@@ -37,11 +41,11 @@ class DetailsScreen extends React.Component {
 	};
 
 	render() {
+		const { params } = this.props.navigation.state;
+		vid = params ? params.uri :  "lCPL4bDRJNg";
 		return (
-			/*<SectionListBasics/>*/
-			/*<ScrollView style={styles.container}>*/
 			<ScrollView >
-			<FlatListBasics navigation={this.props.navigation}/>
+			<LoadVideo/>
 			<Button
 			title="Go back"
 			onPress={() => this.props.navigation.goBack()}
@@ -50,6 +54,32 @@ class DetailsScreen extends React.Component {
 		);
 	}
 }
+/*<SectionListBasics/>*/
+/*<ScrollView style={styles.container}>*/
+
+class LoadVideo extends Component {
+	constructor(props){
+		super(props);
+	}
+
+	render(){
+		return (
+			<WebView
+			style={{height:350}}
+			source={{
+				uri: "https://www.youtube.com/embed/"+vid
+			}}
+			renderLoading={this.renderLoading}
+			renderError={this.renderError}
+			javaScriptEnabled={true}
+			domStorageEnabled={true}
+			automaticallyAdjustContentInsets={false}
+			/>
+		)
+	}
+}
+
+			//source="https://www.youtube.com/embed/lCPL4bDRJNg" 
 
 
 
@@ -60,7 +90,11 @@ class FlatListBasics extends Component {
 	}
 
 	componentDidMount() {
-		return fetch('https://www.googleapis.com/youtube/v3/playlists?maxResults=25&channelId='+cid+'&part=snippet%2CcontentDetails'+'&key='+key)
+		return fetch('https://www.googleapis.com/youtube/v3/playlistItems?' 
+			+'playlistId='+pid 
+			+'&maxResults=25' 
+			+'&part=snippet%2CcontentDetails' 
+			+'&key='+key)
 			.then((response) => response.json())
 			.then((responseJson) => this.setState({
 				isLoading:false,
@@ -71,7 +105,6 @@ class FlatListBasics extends Component {
 				console.error(error);
 			});
 	}
-	
 
 	render() {
 		if (this.state.isLoading){
@@ -85,36 +118,16 @@ class FlatListBasics extends Component {
 			<View style={styles.container}>
 			<FlatList
 			data={this.state.data}
-			renderItem={({item}) =>
-				<Text
-				style={styles.item}
-				onPress={() => {
-					this.props.navigation.navigate('Playlist', {
-						playlistid: item.id,
-						otherParam: item.snippet.title,
-					});
-				}}
-				> {item.snippet.title} </Text>
-			}
+			renderItem={({item}) => 
+				<Text 
+				style={styles.item}> {item.snippet.title} 
+				</Text>}
 			keyExtractor={(item,index)=>index}
 			/>
 			</View>
 		);
 	}
-
-
 }
-
-
-			/*
-			<FlatList
-			data={this.state.data}
-			renderItem={({item}) => <Button title={item.snippet.title} onPress={() => this.props.navigation.navigate('Playlist')} /> }
-			//renderItem={({item}) => <Text style={styles.item}> {item.snippet.title} </Text>}
-			//<Button title="Pick a Language" onPress={() => this.props.navigation.navigate('Details')} />
-			keyExtractor={(item,index)=>index}
-			/>
-			*/
 
 class SectionListBasics extends Component {
 	render() {
@@ -187,5 +200,5 @@ class Touchables extends Component {
 }
 
 module.exports={
-	DetailsScreen
+	VideoScreen
 }

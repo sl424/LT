@@ -42,7 +42,7 @@ class PlaylistScreen extends React.Component {
 		pid = params ? params.playlistid : null;
 		return (
 			<ScrollView >
-			<FlatListBasics/>
+			<FlatListBasics navigation={this.props.navigation}/>
 			<Button
 			title="Go back"
 			onPress={() => this.props.navigation.goBack()}
@@ -56,6 +56,7 @@ class PlaylistScreen extends React.Component {
 
 
 
+
 class FlatListBasics extends Component {
 	constructor(props){
 		super(props);
@@ -63,7 +64,11 @@ class FlatListBasics extends Component {
 	}
 
 	componentDidMount() {
-		return fetch('https://www.googleapis.com/youtube/v3/playlistItems?' +'playlistId='+pid +'&maxResults=25' +'&part=snippet%2CcontentDetails' +'&key='+key)
+		return fetch('https://www.googleapis.com/youtube/v3/playlistItems?' 
+			+'playlistId='+pid 
+			+'&maxResults=25' 
+			+'&part=snippet%2CcontentDetails' 
+			+'&key='+key)
 			.then((response) => response.json())
 			.then((responseJson) => this.setState({
 				isLoading:false,
@@ -87,7 +92,17 @@ class FlatListBasics extends Component {
 			<View style={styles.container}>
 			<FlatList
 			data={this.state.data}
-			renderItem={({item}) => <Text style={styles.item}> {item.snippet.title} </Text>}
+			renderItem={({item}) =>
+				<Text
+				style={styles.item}
+				onPress={() => {
+					this.props.navigation.navigate('Video', {
+						uri: item.contentDetails.videoId,
+						otherParam: item.snippet.title,
+					});
+				}}
+				> {item.snippet.title} </Text>
+			}
 			keyExtractor={(item,index)=>index}
 			/>
 			</View>
